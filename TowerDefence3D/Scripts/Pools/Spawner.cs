@@ -13,7 +13,6 @@ public class Spawner : ObjectPool
         foreach (var wave in _waves)
         {
             Init(wave.UnitTemplate);
-            Debug.Log(wave.UnitTemplate.name);
         }
 
         StartCoroutine(StartGame());

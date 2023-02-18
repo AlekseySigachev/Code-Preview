@@ -24,11 +24,10 @@ public class WaypointMovement : MonoBehaviour
     {
         Transform target = _points[_currentPointIndex];
         var direction = (target.position - transform.position).normalized;
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction)
-            , Time.deltaTime * 10.0f);
-        Vector3 MovementTo = new Vector3(target.position.x, transform.position.y, target.position.z);
-        transform.position = Vector3.MoveTowards(transform.position, MovementTo, 
-            _unit.MovementSpeed * Time.deltaTime);
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 10.0f);
+        transform.position = Vector3.MoveTowards(transform.position, target.position, _unit.MovementSpeed * Time.deltaTime);
+
         if (transform.position.x == target.position.x)
         {
             _currentPointIndex++;
@@ -37,8 +36,5 @@ public class WaypointMovement : MonoBehaviour
                 _currentPointIndex = 0;
             }
         }
-    }
-    private void RotateUnit()
-    {
     }
 }

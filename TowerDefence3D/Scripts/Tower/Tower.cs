@@ -8,7 +8,7 @@ public class Tower : MonoBehaviour
 {
     [SerializeField] private Transform _partToRotate;
 
-    public UnityAction OnTargetDetected;
+    public UnityAction<Transform> OnTargetDetected;
     public UnityAction OnTargetConceal;
 
     private Coroutine _followTargetCoroutine;
@@ -16,20 +16,22 @@ public class Tower : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<Unit>())
+        Unit unit = other.GetComponent<Unit>();
+        if (unit)
         {
-            OnTargetDetected?.Invoke();
-            _targets.Add(other.GetComponent<Unit>());
+            _targets.Add(unit);
 
             if (_followTargetCoroutine == null)
                 _followTargetCoroutine = StartCoroutine(FollowTarget());
         }
     }
+
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.GetComponent<Unit>())
+        Unit unit = other.GetComponent<Unit>();
+        if (unit)
         {
-            _targets.Remove(other.GetComponent<Unit>());
+            _targets.Remove(unit);
 
             if (!_targets.Any() && _followTargetCoroutine != null)
             {
@@ -45,16 +47,31 @@ public class Tower : MonoBehaviour
         return _targets.First();
     }
 
+    private bool IsUnitAlife(Unit unit)
+    {
+        return unit.gameObject.activeSelf;
+    }
+
     private void RotateTower(Unit target)
     {
         var direction = (target.transform.position - transform.position).normalized;
-        _partToRotate.transform.rotation = Quaternion.Slerp(_partToRotate.transform.rotation, Quaternion.LookRotation(new Vector3(direction.x, direction.y, direction.z)), Time.deltaTime * 10.0f);
+        _partToRotate.transform.rotation = Quaternion.Slerp(_partToRotate.transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 10.0f);
     }
+
     private IEnumerator FollowTarget()
     {
         while (true)
         {
-            RotateTower(FindTarget());
+            var target = FindTarget();
+            if (IsUnitAlife(target))
+            {
+                RotateTower(target);
+                OnTargetDetected?.Invoke(target.transform);
+            }
+            else
+            {
+                _targets.Remove(target);
+            }
             yield return new WaitForFixedUpdate();
         }
     }

@@ -5,7 +5,7 @@ public class Unit : MonoBehaviour
 {
     [SerializeField] private UnitResource _unitResource;
 
-    public UnityEvent<int> OnUnitDie;
+    public UnityAction<int> OnUnitDie;
 
     private string _name;
     private int _health;
